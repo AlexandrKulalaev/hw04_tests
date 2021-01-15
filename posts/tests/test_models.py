@@ -28,7 +28,7 @@ class PostModelTest(TestCase):
 
 
     def test_verbose_name(self):
-        """verbose_name в полях совпадает с ожидаемым."""
+        """verbose_name post в полях совпадает с ожидаемым."""
         post = PostModelTest.post
         field_verboses = {
             'text': 'Текст',
@@ -40,7 +40,7 @@ class PostModelTest(TestCase):
                     post._meta.get_field(value).verbose_name, expected)
 
     def test_help_text(self):
-        """help_text в полях совпадает с ожидаемым."""
+        """help_text group в полях совпадает с ожидаемым."""
         group = PostModelTest.group
         field_help_texts = {
             'title': 'Задайте заголовок',
@@ -52,13 +52,13 @@ class PostModelTest(TestCase):
                     group._meta.get_field(value).help_text, expected)
 
     def test_object_name_is_post_fild(self):
-        """__str__  text - это строчка с содержимым post.text."""
+        """__str__  text в post- это строчка с содержимым post.text."""
         post = PostModelTest.post
         expected_object_name = post.text
         self.assertEquals(expected_object_name, str(post))
 
     def test_object_name_is_group_fild(self):
-        """__str__  title - это строчка с содержимым group.title."""
+        """__str__  title в group - это строчка с содержимым group.title."""
         group = PostModelTest.group
         expected_object_name = group.title
         self.assertEquals(expected_object_name, str(group))

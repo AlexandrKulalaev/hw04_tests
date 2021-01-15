@@ -3,9 +3,8 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from django import forms  
 
-from posts.models import Post, Group
+from posts.models import Post, Group, User
 
-User = get_user_model()
 
 class PostPagesTest(TestCase):
     @classmethod
@@ -38,7 +37,7 @@ class PostPagesTest(TestCase):
 
 
     def test_post_pages_uses_correct_template(self):
-        """URL-адрес использует соответствующий шаблон."""
+        """URL-адрес использует соответствующий шаблон. test_views"""
         template_pages_names = {
             'group.html': reverse('group', kwargs={'slug': 'test_slug'}),
             'index.html': reverse('index'),
@@ -101,7 +100,7 @@ class PostPagesTest(TestCase):
                 self.assertIsInstance(form_field, expected)    
 
     def test_post_id_pages_show_correct_context(self):
-        """Шаблон post_id сформирован с правильным контекстом."""
+        """Шаблон post сформирован с правильным контекстом."""
         response = self.authorized_client_author.get(
                 reverse('post', kwargs={'username':self.user_author, 'post_id': self.post.id})
         )

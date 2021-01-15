@@ -67,7 +67,7 @@ def profile(request, username):
     return render(request, 'profile.html', context)
  
 def post_view(request, username, post_id):
-    author = User.objects.get(username=username)
+    author = get_object_or_404(User, username=username)
     text = Post._meta.get_field("text")
     post = get_object_or_404(Post, id=post_id, author=author)
     count = Post.objects.filter(author=author).select_related('author').count()
@@ -88,5 +88,5 @@ def post_edit(request, username, post_id):
             post.save()
             return redirect('post', username=username, post_id=post_id)
     form = PostForm(instance = post)
-    return render(request, 'post.html', {'form':form, 'post':post, 'is_edit': True}) 
+    return render(request, 'new.html', {'form':form, 'post':post, 'is_edit': True}) 
     

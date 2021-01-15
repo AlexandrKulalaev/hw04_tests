@@ -1,6 +1,7 @@
 import os
 import shutil
 import tempfile
+
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -8,19 +9,23 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from posts.forms import PostForm
-from posts.models import Post, Group
+from posts.models import Post, Group, User
+
+
+SLUG = 'test_slug'
+INDEX_URL = reverse('index')
+
 
 class PostCreateFormTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-        User = get_user_model()
         cls.user_author = User.objects.create(username='author')
         
         cls.group = Group.objects.create(
             title = 'Тестовая группа',
-            slug = 'test_slug',
+            slug = SLUG,
             description = 'Описание группы'
         )
 
@@ -54,9 +59,9 @@ class PostCreateFormTests(TestCase):
             follow=True
         )
 
-        self.assertRedirects(response, '/')
+        self.assertRedirects(response, INDEX_URL)
         self.assertEqual(Post.objects.count(), post_count+1)
-        self.assertTrue(Group.objects.filter(slug='test_slug').exists())
+        self.assertTrue(Group.objects.filter(slug=SLUG).exists())
 
 
 class PostFormTests(TestCase):
@@ -66,13 +71,13 @@ class PostFormTests(TestCase):
         cls.user = get_user_model().objects.create(username='test_user')
         cls.authorized_client = Client()
         cls.authorized_client.force_login(cls.user)
-        Post.objects.create(text='Test post', author=cls.user) 
+        cls.post = Post.objects.create(text='Test post', author=cls.user) 
  
     def test_edit_post(self):
         """При редактировании поста изменяется соответствующая запись в Post."""
         form_data = {'text': 'Test post edited'}
         self.authorized_client.post(
-            reverse('post_edit', kwargs={'username': 'test_user', 'post_id': 1}),
+            reverse('post_edit', kwargs={'username': 'test_user', 'post_id': PostFormTests.post.id}),
             data=form_data,
             follow=True,
         )
