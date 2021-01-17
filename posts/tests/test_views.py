@@ -5,6 +5,13 @@ from django import forms
 
 from posts.models import Post, Group, User
 
+USERNAME = 'author'
+SLUG = 'test_slug'
+INDEX_URL = reverse('index')
+NEW_POST_URL = reverse('new_post')
+GROUP_URL = reverse('group', args=[SLUG])
+PROFILE_URL = reverse('profile', args=[USERNAME])
+
 
 class PostPagesTest(TestCase):
     @classmethod
@@ -16,7 +23,7 @@ class PostPagesTest(TestCase):
         
         cls.group = Group.objects.create(
             title = 'Группа для теста',
-            slug = 'test_slug',
+            slug = SLUG,
             description = 'Описание группы'
         )
 
@@ -25,6 +32,10 @@ class PostPagesTest(TestCase):
             author = cls.user_author,
             group = cls.group,
         )
+        
+        cls.POST_EDIT_URL = reverse('post_edit', kwargs={'username':cls.user_author, 'post_id': cls.post.id})
+        cls.POST_URL = reverse('post', kwargs={'username':cls.user_author, 'post_id': cls.post.id})
+
 
     def setUp(self):
 
@@ -39,9 +50,9 @@ class PostPagesTest(TestCase):
     def test_post_pages_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон. test_views"""
         template_pages_names = {
-            'group.html': reverse('group', kwargs={'slug': 'test_slug'}),
-            'index.html': reverse('index'),
-            'new.html': reverse('new_post'),
+            'group.html': GROUP_URL,
+            'index.html': INDEX_URL,
+            'new.html': NEW_POST_URL,
             }
         for template, reverse_name in template_pages_names.items():
             with self.subTest(reverse_name=reverse_name):
@@ -50,7 +61,7 @@ class PostPagesTest(TestCase):
 
     def test_new_post_page_show_correct_context_index(self):
         """Шаблон new_post сформирован с правильным контекстом."""
-        response = self.authorized_client_other.get(reverse('new_post'))
+        response = self.authorized_client_other.get(NEW_POST_URL)
         form_fields = {
             'text': forms.CharField,
             'group': forms.ChoiceField,
@@ -62,16 +73,14 @@ class PostPagesTest(TestCase):
 
     def test_group_page_show_correct_context(self):
         """Шаблон group сформирован с правильным контекстом."""
-        response = self.authorized_client_other.get(
-            reverse('group', kwargs={'slug': 'test_slug'})
-        )
+        response = self.authorized_client_other.get(GROUP_URL)
         self.assertEqual(response.context.get('group').title, 'Группа для теста')
         self.assertEqual(response.context.get('group').description, 'Описание группы')
-        self.assertEqual(response.context.get('group').slug, 'test_slug')
+        self.assertEqual(response.context.get('group').slug, SLUG)
 
     def test_index_page_show_correct_context(self):
         """Шаблон index сформирован с правильным контекстом."""
-        response = self.authorized_client_other.get(reverse('index'))
+        response = self.authorized_client_other.get(INDEX_URL)
         post_text_0 = response.context.get('page')[0].text
         post_author_0 = response.context.get('page')[0].author.username
         self.assertEqual(post_text_0, 'Текст')
@@ -79,7 +88,7 @@ class PostPagesTest(TestCase):
 
     def test_username_post_id_page_show_correct_context(self):
         """Шаблон <username> сформирован с правильным контекстом."""
-        response = self.authorized_client_other.get(reverse('profile', kwargs={'username': 'author'}))
+        response = self.authorized_client_other.get(PROFILE_URL)
         post_text_0 = response.context.get('page')[0].text 
         self.assertEqual(post_text_0, PostPagesTest.post.text)
         post_author_0 = response.context.get('page')[0].author
@@ -88,8 +97,8 @@ class PostPagesTest(TestCase):
         self.assertEqual(post_group_0, PostPagesTest.post.group)
 
     def test_edit_correct_context(self):
-        """Шаблон post_edit сформирован с правильным контекстом."""
-        response = self.authorized_client_author.get(reverse('post_edit', kwargs={'username':self.user_author, 'post_id': self.post.id}))
+        """Шаблон post_edit сформирован с правильным контекстом.""" 
+        response = self.authorized_client_author.get(PostPagesTest.POST_EDIT_URL)
         form_fields = {
             "group": forms.fields.ChoiceField, 
             "text": forms.fields.CharField,
@@ -101,9 +110,7 @@ class PostPagesTest(TestCase):
 
     def test_post_id_pages_show_correct_context(self):
         """Шаблон post сформирован с правильным контекстом."""
-        response = self.authorized_client_author.get(
-                reverse('post', kwargs={'username':self.user_author, 'post_id': self.post.id})
-        )
+        response = self.authorized_client_author.get(PostPagesTest.POST_URL)
         self.assertEqual(response.context.get('post').text, 'Текст')
         self.assertEqual(response.context.get('post').author, self.user_author)
         self.assertEqual(response.context.get('post').group, self.group)             
@@ -127,9 +134,9 @@ class PaginatorViewsTest(TestCase):
 
     def test_first_page_containse_ten_records(self):
         """Тест паджинатора."""
-        response = self.client.get(reverse('index'))
+        response = self.client.get(INDEX_URL)
         self.assertEqual(len(response.context.get('page').object_list), self.POSTS_IN_PAGE)
 
     def test_second_page_containse_three_records(self):
-        response = self.client.get(reverse('index') + '?page=2')
+        response = self.client.get(INDEX_URL + '?page=2')
         self.assertEqual(len(response.context.get('page').object_list), self.POSTS_COUNT - self.POSTS_IN_PAGE) 

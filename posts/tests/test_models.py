@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
-from posts.models import Post, Group
+from posts.models import Post, Group, User
 
 
 class PostModelTest(TestCase):
@@ -8,7 +8,6 @@ class PostModelTest(TestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        User = get_user_model()
         cls.user = User.objects.create(username='UserTest')
         
         cls.group = Group.objects.create(

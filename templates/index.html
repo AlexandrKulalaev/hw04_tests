@@ -5,7 +5,10 @@
         
     {% for post in page %}
         <h3>
-          Автор: {{ post.author.get_full_name }}, Группа: {{ post.group }}, Дата публикации: {{ post.pub_date|date:"d M Y" }}
+          <a class="p-2 text-dark" href="{% url 'profile' post.author %}"> Автор: {{ post.author.get_full_name }}</a> 
+          {% if post.group is None %}<a class="p-2 text-dark">Группа: {{ post.group }}</a>{% else %}
+                                     <a class="p-2 text-dark" href="{% url 'group' post.group.slug %}">Группа: {{ post.group }}</a>{% endif %}
+          <a class="p-2 text-dark">Дата публикации: {{ post.pub_date|date:"d M Y" }}</a>
         </h3>
         <p>{{ post.text|linebreaksbr }}</p>
         {% if not forloop.last %}<hr>{% endif %}

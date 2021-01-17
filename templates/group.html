@@ -7,12 +7,12 @@
     {% extends "base.html" %}
     {% block title %}Записи сообщества {{ group.title }}{% endblock %}
     {% block content %}
-    <h1>{{ group }}</h1>
-    <p>{{ group.description }}</p>
+    <h1>{{ group.title }}</h1>
+    <p>{{ group.description|linebreaksbr }}</p>
     {% for item in posts %}
       <h3> Автор: {{ item.author.get_full_name }}, Дата публикации: {{ item.pub_date|date:"d M Y" }} </h3>
       <p> {{ item.text|linebreaksbr }}</p>
-      {% if not forloop.last %}<hr>{% endif %}
+      {% if not forloop.last %}<hr>{% endif %}<hr>
     {% endfor %}
     {% endblock %} 
 </html> 
